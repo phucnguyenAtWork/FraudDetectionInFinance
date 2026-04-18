@@ -10,5 +10,10 @@ __pycache__/
 # macOS
 .DS_Store
 
-# Large data files
-Real_Data_Fraud/
+# Large/binary files
+*.mov
+*.pptx
+*.pdf
+
+# Large dataset files
+Real_Data_Fraud(Dataset)/
