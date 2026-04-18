@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection in Financial Transactions</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
+            --bg-card-hover: #1e2a42;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e293b;
+            --glass: rgba(255,255,255,0.03);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y proximity;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 14, 26, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        nav .logo {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--accent-blue);
+            letter-spacing: -0.02em;
+        }
+        nav .nav-links {
+            display: flex;
+            gap: 0.25rem;
+        }
+        nav .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        nav .nav-links a:hover, nav .nav-links a.active {
+            color: var(--text-primary);
+            background: var(--glass);
+        }
+
+        /* ===== SECTIONS ===== */
+        section {
+            min-height: 100vh;
+            padding: 100px 2rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            scroll-snap-align: start;
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent-blue);
+            margin-bottom: 0.75rem;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            line-height: 1.7;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-red {
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-amber));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-green {
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ===== HERO ===== */
+        #hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        #hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            right: -200px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: left;
+        }
+
+        .hero-stat .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-stat .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        /* ===== CARDS ===== */
+        .card-grid {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(59,130,246,0.3);
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .card .big-number {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .card .card-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .card .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+
+        /* ===== TABLE ===== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        thead {
+            background: rgba(59,130,246,0.08);
+        }
+
+        th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .highlight-row td {
+            background: rgba(59,130,246,0.06);
+            font-weight: 600;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-green { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+        .badge-red { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+        .badge-blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+        .badge-amber { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
+        .badge-purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+
+        /* ===== BAR CHART (CSS) ===== */
+        .bar-chart { margin-top: 1rem; }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.6rem;
+            gap: 0.75rem;
+        }
+
+        .bar-label {
+            width: 160px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 28px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+            width: 0;
+        }
+
+        .bar-fill.animated { /* width set inline */ }
+
+        .bar-fill.blue { background: linear-gradient(90deg, var(--accent-blue), #60a5fa); }
+        .bar-fill.green { background: linear-gradient(90deg, var(--accent-green), #34d399); }
+        .bar-fill.red { background: linear-gradient(90deg, var(--accent-red), #f87171); }
+        .bar-fill.amber { background: linear-gradient(90deg, var(--accent-amber), #fbbf24); }
+        .bar-fill.purple { background: linear-gradient(90deg, var(--accent-purple), #a78bfa); }
+        .bar-fill.cyan { background: linear-gradient(90deg, var(--accent-cyan), #22d3ee); }
+
+        /* ===== IMAGES ===== */
+        .fig-grid {
+            display: grid;
+            gap: 1.25rem;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .fig-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .fig-card:hover {
+            border-color: rgba(59,130,246,0.3);
+            transform: translateY(-2px);
+        }
+
+        .fig-card img {
+            width: 100%;
+            display: block;
+        }
+
+        .fig-card .fig-caption {
+            padding: 1rem 1.25rem;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        .fig-card .fig-caption strong {
+            color: var(--text-primary);
+        }
+
+        /* ===== COMPARISON BLOCK ===== */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .comparison .arrow {
+            font-size: 2rem;
+            color: var(--accent-green);
+        }
+
+        /* ===== PIPELINE ===== */
+        .pipeline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .pipeline-step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .pipeline-arrow {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        /* ===== SMOTE VISUAL ===== */
+        .smote-visual {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .smote-box {
+            flex: 1;
+            min-width: 250px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .smote-arrow {
+            font-size: 2.5rem;
+            color: var(--accent-blue);
+        }
+
+        .donut-container {
+            width: 120px;
+            height: 120px;
+            margin: 1rem auto;
+            position: relative;
+        }
+
+        .donut-container svg {
+            transform: rotate(-90deg);
+        }
+
+        .donut-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* ===== COST COMPARISON ===== */
+        .cost-flow {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cost-block {
+            text-align: center;
+            padding: 1.5rem 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-width: 180px;
+        }
+
+        .cost-block .cost-value {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cost-block .cost-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .cost-arrow {
+            font-size: 2rem;
+            color: var(--accent-green);
+        }
+
+        .savings-badge {
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+
+        /* ===== ANIMATE ON SCROLL ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== KEY TAKEAWAY ===== */
+        .takeaway {
+            background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.08));
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+        }
+
+        .takeaway h3 {
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            section { padding: 80px 1rem 3rem; }
+            nav .nav-links { display: none; }
+            .hero-stats { gap: 1.5rem; }
+            .hero-stat .number { font-size: 1.8rem; }
+            .comparison { grid-template-columns: 1fr; }
+            .comparison .arrow { transform: rotate(90deg); justify-self: center; }
+            .fig-grid { grid-template-columns: 1fr; }
+            .bar-label { width: 100px; font-size: 0.7rem; }
+        }
+
+        /* Keyboard nav hint */
+        .key-hint {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            z-index: 999;
+            opacity: 0.7;
+        }
+
+        .key-hint kbd {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 0.1rem 0.35rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">Fraud Detection</div>
+    <div class="nav-links">
+        <a href="#hero">Overview</a>
+        <a href="#data">Data</a>
+        <a href="#features">Features</a>
+        <a href="#smote">SMOTE</a>
+        <a href="#models">Models</a>
+        <a href="#tuning">Tuning</a>
+        <a href="#cost">Business Impact</a>
+        <a href="#spark">Spark</a>
+        <a href="#fairness">Fairness</a>
+        <a href="#eda">Charts</a>
+        <a href="#takeaways">Takeaways</a>
+    </div>
+</nav>
+
+<div class="key-hint"><kbd>&darr;</kbd> scroll sections</div>
+
+<!-- ==================== HERO ==================== -->
+<section id="hero">
+    <div class="section-label">Big Data Analytics Project</div>
+    <h1>Fraud Detection in<br><span class="gradient-text">Financial Transactions</span></h1>
+    <p class="subtitle">
+        Can machine learning models, trained on historically imbalanced transaction data and deployed on big data infrastructure,
+        reliably detect fraudulent credit card transactions while minimising both missed fraud and false alarms?
+    </p>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="number gradient-text" data-count="1852394">0</div>
+            <div class="label">Total Transactions</div>
+        </div>
+        <div class="hero-stat">
+            <div class="number gradient-red" data-count="9651">0</div>
+            <div class="label">Fraud Cases (0.58%)</div>
+        </div>
+        <div class="hero-stat">
+            <div class="number" style="color: var(--accent-green)">92.4%</div>
+            <div class="label">Best Recall (XGBoost)</div>
+        </div>
+        <div class="hero-stat">
+            <div class="number" style="color: var(--accent-amber)">90.3%</div>
+            <div class="label">Cost Reduction</div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== DATA OVERVIEW ==================== -->
+<section id="data">
+    <div class="reveal">
+        <div class="section-label">Chapter 1</div>
+        <h2>Understanding the Data</h2>
+        <p class="subtitle">1.85 million transactions with extreme class imbalance &mdash; only 0.58% are fraud.</p>
+    </div>
+
+    <div class="card-grid grid-4 reveal" style="margin-top: 2rem;">
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-blue);">1.85M</div>
+            <div class="card-label">Total Transactions</div>
+        </div>
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-red);">9,651</div>
+            <div class="card-label">Fraud Cases</div>
+        </div>
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-amber);">23</div>
+            <div class="card-label">Raw Features</div>
+        </div>
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-purple);">171:1</div>
+            <div class="card-label">Legit-to-Fraud Ratio</div>
+        </div>
+    </div>
+
+    <div class="card-grid grid-2 reveal" style="margin-top: 1.25rem;">
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Split</th><th>Records</th><th>Fraud</th><th>Rate</th></tr></thead>
+                <tbody>
+                    <tr><td>Training</td><td class="mono">1,296,675</td><td class="mono">7,506</td><td><span class="badge badge-red">0.58%</span></td></tr>
+                    <tr><td>Test</td><td class="mono">555,719</td><td class="mono">2,145</td><td><span class="badge badge-red">0.39%</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3>Key Data Insights</h3>
+            <div class="card-desc">
+                <p><strong>Amount</strong> is the strongest fraud signal (corr: 0.219)</p>
+                <p style="margin-top:0.4rem"><strong>Peak fraud hour: 22:00</strong> at 2.88% rate (5x average)</p>
+                <p style="margin-top:0.4rem"><strong>Riskiest categories:</strong> shopping_net (1.76%), misc_net (1.45%)</p>
+                <p style="margin-top:0.4rem"><strong>Gender:</strong> Female 0.53%, Male 0.64% (minimal)</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FEATURE ENGINEERING ==================== -->
+<section id="features">
+    <div class="reveal">
+        <div class="section-label">Chapter 2</div>
+        <h2>Feature Engineering</h2>
+        <p class="subtitle">5 engineered features to give models stronger fraud signals.</p>
+    </div>
+
+    <div class="card-grid grid-3 reveal" style="margin-top: 2rem;">
+        <div class="card">
+            <div class="card-icon" style="background: rgba(59,130,246,0.12); color: var(--accent-blue);">&#128100;</div>
+            <h3>customer_age</h3>
+            <div class="card-desc">Age of the cardholder &mdash; demographic signal</div>
+        </div>
+        <div class="card">
+            <div class="card-icon" style="background: rgba(239,68,68,0.12); color: var(--accent-red);">&#128205;</div>
+            <h3>distance_km</h3>
+            <div class="card-desc">Geospatial distance from customer's home &mdash; #2 predictor</div>
+        </div>
+        <div class="card">
+            <div class="card-icon" style="background: rgba(245,158,11,0.12); color: var(--accent-amber);">&#128336;</div>
+            <h3>hour_of_day</h3>
+            <div class="card-desc">Time of day &mdash; captures late-night fraud patterns</div>
+        </div>
+        <div class="card">
+            <div class="card-icon" style="background: rgba(139,92,246,0.12); color: var(--accent-purple);">&#128202;</div>
+            <h3>trans_count_24h</h3>
+            <div class="card-desc">Rolling 24h transaction velocity</div>
+        </div>
+        <div class="card">
+            <div class="card-icon" style="background: rgba(16,185,129,0.12); color: var(--accent-green);">&#128176;</div>
+            <h3>trans_amt_24h</h3>
+            <div class="card-desc">Total spend in last 24 hours &mdash; burst spending flag</div>
+        </div>
+        <div class="card" style="border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.06);">
+            <h3 style="color: var(--accent-blue);">Top 2 Predictors</h3>
+            <div class="card-desc">
+                <strong>1. Transaction amount (amt)</strong> &mdash; large, unusual amounts<br>
+                <strong>2. Distance (distance_km)</strong> &mdash; fraud happens far from home
+            </div>
+        </div>
+    </div>
+
+    <div class="reveal" style="margin-top: 2rem;">
+        <h3>Processing Pipeline</h3>
+        <div class="pipeline">
+            <div class="pipeline-step">Raw CSV (23 cols)</div>
+            <span class="pipeline-arrow">&rarr;</span>
+            <div class="pipeline-step">Feature Engineering (+5)</div>
+            <span class="pipeline-arrow">&rarr;</span>
+            <div class="pipeline-step">LabelEncoder</div>
+            <span class="pipeline-arrow">&rarr;</span>
+            <div class="pipeline-step">StandardScaler</div>
+            <span class="pipeline-arrow">&rarr;</span>
+            <div class="pipeline-step">SMOTE</div>
+            <span class="pipeline-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color: var(--accent-blue); color: var(--accent-blue);">10 Features</div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SMOTE ==================== -->
+<section id="smote">
+    <div class="reveal">
+        <div class="section-label">Chapter 3</div>
+        <h2>SMOTE &mdash; Fixing a Broken Scale</h2>
+        <p class="subtitle">A naive classifier predicting "not fraud" achieves 99.4% accuracy but catches <strong style="color:var(--accent-red)">zero fraud</strong>.</p>
+    </div>
+
+    <div class="smote-visual reveal">
+        <div class="smote-box">
+            <h3>Before SMOTE</h3>
+            <div class="donut-container">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14"/>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-red)" stroke-width="14"
+                        stroke-dasharray="1.82 312" stroke-dashoffset="0"/>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-blue)" stroke-width="14"
+                        stroke-dasharray="312 0" stroke-dashoffset="-1.82"/>
+                </svg>
+                <div class="donut-label" style="color: var(--accent-red);">0.58%</div>
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                <span class="mono">7,506</span> fraud / <span class="mono">1.3M</span> total
+            </div>
+        </div>
+
+        <div class="smote-arrow">&#10132;</div>
+
+        <div class="smote-box" style="border-color: rgba(16,185,129,0.3);">
+            <h3 style="color: var(--accent-green);">After SMOTE</h3>
+            <div class="donut-container">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14"/>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-green)" stroke-width="14"
+                        stroke-dasharray="28.6 285.4" stroke-dashoffset="0"/>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-blue)" stroke-width="14"
+                        stroke-dasharray="285.4 28.6" stroke-dashoffset="-28.6"/>
+                </svg>
+                <div class="donut-label" style="color: var(--accent-green);">9.09%</div>
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                <span class="mono">128,916</span> fraud / <span class="mono">1.4M</span> total
+            </div>
+        </div>
+    </div>
+
+    <div class="card-grid grid-3 reveal">
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-green);">121,410</div>
+            <div class="card-label">Synthetic fraud samples generated</div>
+        </div>
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-amber);">17.2x</div>
+            <div class="card-label">Fraud class multiplied</div>
+        </div>
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-blue);">10 : 1</div>
+            <div class="card-label">New Legit-to-Fraud ratio</div>
+        </div>
+    </div>
+
+    <div class="takeaway reveal" style="margin-top: 1.5rem;">
+        <h3>Key</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Test set remains <strong>untouched</strong> at its original 0.39% fraud rate.
+            All evaluation uses real-world distribution &mdash; no synthetic data leakage.
+        </p>
+    </div>
+</section>
+
+<!-- ==================== MODEL RESULTS ==================== -->
+<section id="models">
+    <div class="reveal">
+        <div class="section-label">Chapter 4</div>
+        <h2>Model Comparison</h2>
+        <p class="subtitle">6 models compared on 555,719 test transactions (2,145 fraud cases).</p>
+    </div>
+
+    <div class="table-wrapper reveal" style="margin-top: 2rem;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Fraud Caught</th>
+                    <th>Fraud Missed</th>
+                    <th>False Alarms</th>
+                    <th>Recall</th>
+                    <th>Precision</th>
+                    <th>F1</th>
+                    <th>AUC-ROC</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="color: var(--text-muted);">
+                    <td>Baseline (Majority)</td>
+                    <td class="mono">0</td><td class="mono">2,145</td><td class="mono">0</td>
+                    <td class="mono">0.00%</td><td class="mono">0.00%</td><td class="mono">0.000</td><td class="mono">0.500</td>
+                </tr>
+                <tr>
+                    <td>Logistic Regression</td>
+                    <td class="mono">1,552</td><td class="mono">593</td><td class="mono" style="color:var(--accent-red)">3,863</td>
+                    <td class="mono">72.35%</td><td class="mono">28.66%</td><td class="mono">0.411</td><td class="mono">0.967</td>
+                </tr>
+                <tr>
+                    <td>Random Forest</td>
+                    <td class="mono">1,914</td><td class="mono">231</td><td class="mono">238</td>
+                    <td class="mono">89.23%</td><td class="mono">88.94%</td><td class="mono">0.891</td><td class="mono">0.993</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>XGBoost <span class="badge badge-green">Best Recall</span></td>
+                    <td class="mono" style="color:var(--accent-green)">1,982</td><td class="mono">163</td><td class="mono">642</td>
+                    <td class="mono" style="color:var(--accent-green)">92.40%</td><td class="mono">75.53%</td><td class="mono">0.831</td><td class="mono">0.998</td>
+                </tr>
+                <tr>
+                    <td>Stacking Ensemble</td>
+                    <td class="mono">1,910</td><td class="mono">235</td><td class="mono">239</td>
+                    <td class="mono">89.04%</td><td class="mono">88.88%</td><td class="mono">0.890</td><td class="mono">0.987</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="reveal" style="margin-top: 2rem;">
+        <h3>Recall Comparison</h3>
+        <div class="bar-chart">
+            <div class="bar-row">
+                <div class="bar-label">Baseline</div>
+                <div class="bar-track"><div class="bar-fill red" data-width="0.5%" style="min-width: 60px;">0.00%</div></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">Logistic Regression</div>
+                <div class="bar-track"><div class="bar-fill amber" data-width="72.35%">72.35%</div></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">Random Forest</div>
+                <div class="bar-track"><div class="bar-fill blue" data-width="89.23%">89.23%</div></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">XGBoost</div>
+                <div class="bar-track"><div class="bar-fill green" data-width="92.40%">92.40%</div></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">Stacking Ensemble</div>
+                <div class="bar-track"><div class="bar-fill purple" data-width="89.04%">89.04%</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== TUNING ==================== -->
+<section id="tuning">
+    <div class="reveal">
+        <div class="section-label">Chapter 5</div>
+        <h2>Hyperparameter Tuning</h2>
+        <p class="subtitle">Tuning doesn't catch more fraud &mdash; it reduces costly false alarms.</p>
+    </div>
+
+    <div class="card-grid grid-2 reveal" style="margin-top: 2rem;">
+        <!-- XGBoost Tuning -->
+        <div class="card">
+            <h3>XGBoost: Default vs Tuned</h3>
+            <table style="margin-top: 0.75rem;">
+                <thead><tr><th>Metric</th><th>Default</th><th>Tuned</th><th>Delta</th></tr></thead>
+                <tbody>
+                    <tr><td>Recall</td><td class="mono">92.40%</td><td class="mono">92.03%</td><td class="mono" style="color:var(--text-muted)">-0.37%</td></tr>
+                    <tr><td>Precision</td><td class="mono">75.53%</td><td class="mono">84.47%</td><td class="mono" style="color:var(--accent-green)">+11.82%</td></tr>
+                    <tr><td>F1-Score</td><td class="mono">0.831</td><td class="mono">0.881</td><td class="mono" style="color:var(--accent-green)">+5.97%</td></tr>
+                    <tr><td>False Alarms</td><td class="mono" style="color:var(--accent-red)">642</td><td class="mono" style="color:var(--accent-green)">363</td><td class="mono" style="color:var(--accent-green)">-279 (43%)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- RF Tuning -->
+        <div class="card">
+            <h3>Random Forest: Default vs Tuned</h3>
+            <table style="margin-top: 0.75rem;">
+                <thead><tr><th>Metric</th><th>Default</th><th>Tuned</th><th>Delta</th></tr></thead>
+                <tbody>
+                    <tr><td>Recall</td><td class="mono">89.23%</td><td class="mono">89.28%</td><td class="mono" style="color:var(--accent-green)">+0.05%</td></tr>
+                    <tr><td>Precision</td><td class="mono">88.94%</td><td class="mono">89.44%</td><td class="mono" style="color:var(--accent-green)">+0.57%</td></tr>
+                    <tr><td>F1-Score</td><td class="mono">0.891</td><td class="mono">0.894</td><td class="mono" style="color:var(--accent-green)">+0.31%</td></tr>
+                    <tr><td>False Alarms</td><td class="mono">238</td><td class="mono" style="color:var(--accent-green)">226</td><td class="mono" style="color:var(--accent-green)">-12</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="takeaway reveal" style="margin-top: 1.5rem;">
+        <h3>Why Tuning Matters</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Default models already catch 89&ndash;92% of fraud. Tuning is about <strong>operational efficiency</strong>:
+            XGBoost tuning trades <strong>8 missed fraud cases</strong> for <strong>279 fewer false alarms</strong> (43% reduction).
+            At scale, this means fewer customer disruptions and lower investigation costs.
+        </p>
+    </div>
+</section>
+
+<!-- ==================== BUSINESS IMPACT ==================== -->
+<section id="cost">
+    <div class="reveal">
+        <div class="section-label">Chapter 6</div>
+        <h2>Business Impact</h2>
+        <p class="subtitle">Conservative estimates: $100 avg fraud value, $10 per false alarm investigation.</p>
+    </div>
+
+    <div class="cost-flow reveal">
+        <div class="cost-block">
+            <div class="cost-value" style="color: var(--accent-red);">$214,500</div>
+            <div class="cost-label">No Model (Baseline)</div>
+        </div>
+        <div class="cost-arrow">&#10132;</div>
+        <div class="cost-block" style="border-color: rgba(16,185,129,0.3);">
+            <div class="cost-value" style="color: var(--accent-green);">$20,730</div>
+            <div class="cost-label">Tuned XGBoost</div>
+        </div>
+        <div class="savings-badge">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">90.3%</div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary);">Cost Reduction</div>
+        </div>
+    </div>
+
+    <div class="table-wrapper reveal" style="margin-top: 2rem;">
+        <table>
+            <thead><tr><th>Model</th><th>Fraud Prevented</th><th>Investigation Cost</th><th>Total Operational Cost</th></tr></thead>
+            <tbody>
+                <tr style="color: var(--text-muted);">
+                    <td>Baseline (No Model)</td><td class="mono">$0</td><td class="mono">$0</td><td class="mono" style="color:var(--accent-red)">$214,500</td>
+                </tr>
+                <tr>
+                    <td>Logistic Regression</td><td class="mono">$155,200</td><td class="mono">$38,630</td><td class="mono">$97,930</td>
+                </tr>
+                <tr>
+                    <td>Random Forest</td><td class="mono">$191,400</td><td class="mono">$2,380</td><td class="mono">$25,480</td>
+                </tr>
+                <tr>
+                    <td>Tuned RF</td><td class="mono">$191,500</td><td class="mono">$2,260</td><td class="mono">$25,260</td>
+                </tr>
+                <tr>
+                    <td>XGBoost</td><td class="mono">$198,200</td><td class="mono">$6,420</td><td class="mono">$22,720</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>Tuned XGBoost <span class="badge badge-green">Best</span></td>
+                    <td class="mono" style="color:var(--accent-green)">$197,400</td>
+                    <td class="mono" style="color:var(--accent-green)">$3,630</td>
+                    <td class="mono" style="color:var(--accent-green)">$20,730</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="reveal" style="margin-top: 2rem;">
+        <h3>Investigation Cost: Tuning Impact</h3>
+        <div class="bar-chart">
+            <div class="bar-row">
+                <div class="bar-label">XGBoost Default</div>
+                <div class="bar-track"><div class="bar-fill red" data-width="80%">$6,420</div></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">XGBoost Tuned</div>
+                <div class="bar-track"><div class="bar-fill green" data-width="45%">$3,630 (-43%)</div></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">RF Default</div>
+                <div class="bar-track"><div class="bar-fill amber" data-width="30%">$2,380</div></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">RF Tuned</div>
+                <div class="bar-track"><div class="bar-fill green" data-width="28%">$2,260</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SPARK ==================== -->
+<section id="spark">
+    <div class="reveal">
+        <div class="section-label">Chapter 7</div>
+        <h2>Big Data Scalability &mdash; <span class="gradient-text">Apache Spark</span></h2>
+        <p class="subtitle">Replicating the pipeline on distributed infrastructure.</p>
+    </div>
+
+    <div class="card-grid grid-3 reveal" style="margin-top: 2rem;">
+        <div class="card" style="border-color: rgba(59,130,246,0.3);">
+            <div class="big-number" style="color: var(--accent-blue);">0.9897</div>
+            <div class="card-label">Spark AUC-ROC</div>
+            <div class="card-desc">vs sklearn RF: 0.9925 (0.28% diff)</div>
+        </div>
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-cyan);">1.3M</div>
+            <div class="card-label">Training Rows Processed</div>
+            <div class="card-desc">Distributed across Spark workers</div>
+        </div>
+        <div class="card">
+            <div class="big-number" style="color: var(--accent-green);">6</div>
+            <div class="card-label">Pipeline Stages</div>
+            <div class="card-desc">StringIndexer &rarr; VectorAssembler &rarr; Scaler &rarr; RF</div>
+        </div>
+    </div>
+
+    <div class="table-wrapper reveal" style="margin-top: 1.5rem;">
+        <table>
+            <thead><tr><th>Metric</th><th>sklearn RF</th><th>Spark MLlib RF</th></tr></thead>
+            <tbody>
+                <tr><td>AUC-ROC</td><td class="mono">0.9925</td><td class="mono">0.9897</td></tr>
+                <tr><td>Training rows</td><td class="mono">1,296,675 (SMOTE)</td><td class="mono">~907,673 (70/30 split)</td></tr>
+                <tr><td>Scalability</td><td>Single machine</td><td><span class="badge badge-blue">Distributed cluster</span></td></tr>
+                <tr><td>Fault tolerance</td><td>None</td><td><span class="badge badge-green">RDD lineage</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="takeaway reveal" style="margin-top: 1.5rem;">
+        <h3>Scaling Path</h3>
+        <div class="pipeline" style="margin: 0.75rem 0 0;">
+            <div class="pipeline-step">&lt; 10M: sklearn (laptop)</div>
+            <span class="pipeline-arrow">&rarr;</span>
+            <div class="pipeline-step">10M&ndash;1B: Spark cluster</div>
+            <span class="pipeline-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">&gt; 1B: Spark Streaming + Kafka</div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FAIRNESS ==================== -->
+<section id="fairness">
+    <div class="reveal">
+        <div class="section-label">Chapter 8</div>
+        <h2>Fairness Audit</h2>
+        <p class="subtitle">Does the model discriminate by gender?</p>
+    </div>
+
+    <div class="card-grid grid-2 reveal" style="margin-top: 2rem;">
+        <div class="card">
+            <h3>False Positive Rate</h3>
+            <div style="display: flex; gap: 2rem; margin-top: 1rem; align-items: flex-end;">
+                <div style="text-align: center;">
+                    <div style="height: 30px; width: 60px; background: var(--accent-purple); border-radius: 6px 6px 0 0; margin: 0 auto;"></div>
+                    <div class="mono" style="margin-top: 0.4rem; font-weight: 600;">0.05%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Female</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="height: 18px; width: 60px; background: var(--accent-blue); border-radius: 6px 6px 0 0; margin: 0 auto;"></div>
+                    <div class="mono" style="margin-top: 0.4rem; font-weight: 600;">0.03%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Male</div>
+                </div>
+            </div>
+            <div class="card-desc" style="margin-top: 1rem;">Disparity: <span class="badge badge-green">0.02%</span> &mdash; minimal</div>
+        </div>
+
+        <div class="card" style="border-color: rgba(239,68,68,0.3);">
+            <h3>False Negative Rate</h3>
+            <div style="display: flex; gap: 2rem; margin-top: 1rem; align-items: flex-end;">
+                <div style="text-align: center;">
+                    <div style="height: 100px; width: 60px; background: var(--accent-red); border-radius: 6px 6px 0 0; margin: 0 auto;"></div>
+                    <div class="mono" style="margin-top: 0.4rem; font-weight: 600;">14.35%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Female</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="height: 45px; width: 60px; background: var(--accent-amber); border-radius: 6px 6px 0 0; margin: 0 auto;"></div>
+                    <div class="mono" style="margin-top: 0.4rem; font-weight: 600;">6.42%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Male</div>
+                </div>
+            </div>
+            <div class="card-desc" style="margin-top: 1rem;">Disparity: <span class="badge badge-red">7.93%</span> &mdash; the model misses more fraud for female cardholders</div>
+        </div>
+    </div>
+
+    <div class="card reveal" style="margin-top: 1.25rem;">
+        <h3>Mitigation Strategies</h3>
+        <div class="card-grid grid-2" style="margin-top: 0.75rem; gap: 0.75rem;">
+            <div style="font-size: 0.85rem; color: var(--text-secondary); padding: 0.5rem;">
+                <strong style="color: var(--text-primary);">Remove gender feature</strong><br>
+                Eliminates direct discrimination, but proxy variables may persist
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); padding: 0.5rem;">
+                <strong style="color: var(--text-primary);">Equalised odds post-processing</strong><br>
+                Adjust thresholds per group to equalise TPR/FPR
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); padding: 0.5rem;">
+                <strong style="color: var(--text-primary);">Fairness-aware resampling</strong><br>
+                Apply SMOTE separately within demographic subgroups
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); padding: 0.5rem;">
+                <strong style="color: var(--text-primary);">Ongoing monitoring</strong><br>
+                Deploy fairness metrics in production to detect drift
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== EDA CHARTS ==================== -->
+<section id="eda">
+    <div class="reveal">
+        <div class="section-label">Visualisations</div>
+        <h2>Exploratory Data Analysis & Model Charts</h2>
+    </div>
+
+    <div class="fig-grid reveal" style="margin-top: 2rem;">
+        <div class="fig-card">
+            <img src="fig_fraud_by_hour.png" alt="Fraud by Hour" loading="lazy">
+            <div class="fig-caption"><strong>Fraud by Hour</strong> &mdash; Peak at 22:00 (2.88% rate)</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_fraud_rate_by_category.png" alt="Fraud Rate by Category" loading="lazy">
+            <div class="fig-caption"><strong>Fraud Rate by Category</strong> &mdash; shopping_net leads at 1.76%</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_amt_by_fraud.png" alt="Amount by Fraud Status" loading="lazy">
+            <div class="fig-caption"><strong>Amount by Fraud Status</strong> &mdash; Fraudulent transactions skew higher</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_dist_amount_citypop.png" alt="Distribution of Amount & City Pop" loading="lazy">
+            <div class="fig-caption"><strong>Distribution</strong> &mdash; Amount and city population distributions</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_correlation_heatmap.png" alt="Correlation Heatmap" loading="lazy">
+            <div class="fig-caption"><strong>Correlation Heatmap</strong> &mdash; Amount has strongest fraud correlation (0.219)</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_smote_balance.png" alt="SMOTE Balance" loading="lazy">
+            <div class="fig-caption"><strong>SMOTE Balance</strong> &mdash; Before vs after resampling</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_pr_roc_all_models.png" alt="PR & ROC Curves" loading="lazy">
+            <div class="fig-caption"><strong>PR & ROC Curves</strong> &mdash; All models compared</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_unified_model_comparison.png" alt="Model Comparison" loading="lazy">
+            <div class="fig-caption"><strong>Model Comparison</strong> &mdash; Unified view across all metrics</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_cm_xgb.png" alt="XGBoost Confusion Matrix" loading="lazy">
+            <div class="fig-caption"><strong>XGBoost Confusion Matrix</strong> &mdash; 1,982 caught, 163 missed</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_cm_rf.png" alt="Random Forest Confusion Matrix" loading="lazy">
+            <div class="fig-caption"><strong>RF Confusion Matrix</strong> &mdash; 1,914 caught, 231 missed</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_feature_importance_tuned_rf.png" alt="Feature Importance" loading="lazy">
+            <div class="fig-caption"><strong>Feature Importance (Tuned RF)</strong> &mdash; Amount and distance dominate</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_business_cost.png" alt="Business Cost Analysis" loading="lazy">
+            <div class="fig-caption"><strong>Business Cost</strong> &mdash; $214,500 baseline to $20,730 with Tuned XGBoost</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_threshold_analysis.png" alt="Threshold Analysis" loading="lazy">
+            <div class="fig-caption"><strong>Threshold Analysis</strong> &mdash; Recall/Precision trade-off at different cut-offs</div>
+        </div>
+        <div class="fig-card">
+            <img src="fig_fairness_gender.png" alt="Fairness by Gender" loading="lazy">
+            <div class="fig-caption"><strong>Fairness by Gender</strong> &mdash; 7.93% FNR gap (Female vs Male)</div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== TAKEAWAYS ==================== -->
+<section id="takeaways">
+    <div class="reveal">
+        <div class="section-label">Conclusion</div>
+        <h2>Key Takeaways</h2>
+    </div>
+
+    <div class="card-grid grid-3 reveal" style="margin-top: 2rem;">
+        <div class="card" style="border-color: rgba(59,130,246,0.3);">
+            <div style="font-size: 2rem; margin-bottom: 0.75rem;">1</div>
+            <h3>SMOTE makes the invisible visible</h3>
+            <div class="card-desc">
+                Without it, models default to "predict no fraud" and catch nothing.
+                SMOTE increased fraud representation by <strong>17.2x</strong>, enabling 89&ndash;92% recall.
+            </div>
+        </div>
+        <div class="card" style="border-color: rgba(16,185,129,0.3);">
+            <div style="font-size: 2rem; margin-bottom: 0.75rem;">2</div>
+            <h3>Tuning optimizes the trade-off</h3>
+            <div class="card-desc">
+                Default models already catch most fraud. Tuning reduces false alarms by up to <strong>43%</strong> (279 fewer per cycle),
+                meaning fewer customer disruptions.
+            </div>
+        </div>
+        <div class="card" style="border-color: rgba(6,182,212,0.3);">
+            <div style="font-size: 2rem; margin-bottom: 0.75rem;">3</div>
+            <h3>The pipeline scales</h3>
+            <div class="card-desc">
+                Spark MLlib achieves <strong>98.97% AUC</strong> on the same data, proving the approach works on
+                distributed infrastructure for millions of daily transactions.
+            </div>
+        </div>
+    </div>
+
+    <div class="reveal" style="margin-top: 3rem;">
+        <h3>Recommended Models</h3>
+        <div class="table-wrapper" style="margin-top: 1rem;">
+            <table>
+                <thead><tr><th>Use Case</th><th>Model</th><th>Why</th></tr></thead>
+                <tbody>
+                    <tr><td>Maximize fraud detection</td><td><span class="badge badge-green">XGBoost</span></td><td>Highest recall at 92.4%</td></tr>
+                    <tr class="highlight-row"><td>Best overall balance</td><td><span class="badge badge-blue">Tuned XGBoost</span></td><td>Best F1 (0.881) + highest AUC (0.9987)</td></tr>
+                    <tr><td>Minimize false alarms</td><td><span class="badge badge-purple">Tuned RF</span></td><td>Highest precision at 89.4%</td></tr>
+                    <tr><td>Regulatory / explainability</td><td><span class="badge badge-amber">Logistic Regression</span></td><td>Linear, fully interpretable</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<footer>
+    Fraud Detection in Financial Transactions &mdash; Big Data Analytics Project
+</footer>
+
+<script>
+    // ===== Scroll reveal =====
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                // Animate bars inside this element
+                entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+                    setTimeout(() => {
+                        bar.style.width = bar.dataset.width;
+                    }, 200);
+                });
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ===== Count-up animation for hero stats =====
+    function animateCount(el, target, duration = 2000) {
+        const start = performance.now();
+        const format = (n) => n.toLocaleString();
+        function step(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = format(Math.floor(target * eased));
+            if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    document.querySelectorAll('[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count);
+        const heroObserver = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                animateCount(el, target);
+                heroObserver.disconnect();
+            }
+        });
+        heroObserver.observe(el);
+    });
+
+    // ===== Active nav link =====
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('nav .nav-links a');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            if (window.scrollY >= section.offsetTop - 200) {
+                current = section.id;
+            }
+        });
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+        });
+    });
+
+    // ===== Keyboard navigation =====
+    const sectionIds = Array.from(sections).map(s => s.id);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            const idx = sectionIds.findIndex(id => {
+                const el = document.getElementById(id);
+                return el.offsetTop > window.scrollY + 10;
+            });
+            if (idx !== -1) document.getElementById(sectionIds[idx]).scrollIntoView({ behavior: 'smooth' });
+        }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const idx = sectionIds.findIndex(id => {
+                const el = document.getElementById(id);
+                return el.offsetTop >= window.scrollY - 10;
+            });
+            const target = idx > 0 ? idx - 1 : 0;
+            document.getElementById(sectionIds[target]).scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+</script>
+</body>
+</html>
