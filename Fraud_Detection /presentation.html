@@ -8,21 +8,21 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
 
         :root {
-            --bg-primary: #0a0e1a;
-            --bg-secondary: #111827;
-            --bg-card: #1a2235;
-            --bg-card-hover: #1e2a42;
-            --accent-blue: #3b82f6;
-            --accent-cyan: #06b6d4;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-amber: #f59e0b;
-            --accent-purple: #8b5cf6;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border: #1e293b;
-            --glass: rgba(255,255,255,0.03);
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #f1f5f9;
+            --bg-card-hover: #e2e8f0;
+            --accent-blue: #2563eb;
+            --accent-cyan: #0891b2;
+            --accent-green: #059669;
+            --accent-red: #dc2626;
+            --accent-amber: #d97706;
+            --accent-purple: #7c3aed;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --glass: rgba(0,0,0,0.03);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -47,7 +47,7 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(10, 14, 26, 0.85);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
             padding: 0 2rem;
@@ -163,7 +163,7 @@
             right: -200px;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%);
             pointer-events: none;
         }
 
@@ -212,7 +212,7 @@
 
         .card:hover {
             background: var(--bg-card-hover);
-            border-color: rgba(59,130,246,0.3);
+            border-color: rgba(37,99,235,0.3);
             transform: translateY(-2px);
         }
 
@@ -263,7 +263,7 @@
         }
 
         thead {
-            background: rgba(59,130,246,0.08);
+            background: rgba(37,99,235,0.08);
         }
 
         th {
@@ -284,11 +284,11 @@
         }
 
         tr:hover td {
-            background: rgba(255,255,255,0.02);
+            background: rgba(0,0,0,0.02);
         }
 
         .highlight-row td {
-            background: rgba(59,130,246,0.06);
+            background: rgba(37,99,235,0.08);
             font-weight: 600;
         }
 
@@ -307,7 +307,7 @@
 
         .badge-green { background: rgba(16,185,129,0.15); color: var(--accent-green); }
         .badge-red { background: rgba(239,68,68,0.15); color: var(--accent-red); }
-        .badge-blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+        .badge-blue { background: rgba(37,99,235,0.15); color: var(--accent-blue); }
         .badge-amber { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
         .badge-purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
 
@@ -332,7 +332,7 @@
         .bar-track {
             flex: 1;
             height: 28px;
-            background: rgba(255,255,255,0.04);
+            background: rgba(0,0,0,0.06);
             border-radius: 6px;
             overflow: hidden;
             position: relative;
@@ -376,7 +376,7 @@
         }
 
         .fig-card:hover {
-            border-color: rgba(59,130,246,0.3);
+            border-color: rgba(37,99,235,0.3);
             transform: translateY(-2px);
         }
 
@@ -536,8 +536,8 @@
 
         /* ===== KEY TAKEAWAY ===== */
         .takeaway {
-            background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.08));
-            border: 1px solid rgba(59,130,246,0.2);
+            background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(6,182,212,0.08));
+            border: 1px solid rgba(37,99,235,0.25);
             border-radius: 12px;
             padding: 1.5rem 2rem;
             margin: 2rem 0;
@@ -702,7 +702,7 @@
 
     <div class="card-grid grid-3 reveal" style="margin-top: 2rem;">
         <div class="card">
-            <div class="card-icon" style="background: rgba(59,130,246,0.12); color: var(--accent-blue);">&#128100;</div>
+            <div class="card-icon" style="background: rgba(37,99,235,0.12); color: var(--accent-blue);">&#128100;</div>
             <h3>customer_age</h3>
             <div class="card-desc">Age of the cardholder &mdash; demographic signal</div>
         </div>
@@ -726,7 +726,7 @@
             <h3>trans_amt_24h</h3>
             <div class="card-desc">Total spend in last 24 hours &mdash; burst spending flag</div>
         </div>
-        <div class="card" style="border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.06);">
+        <div class="card" style="border-color: rgba(37,99,235,0.3); background: rgba(37,99,235,0.08);">
             <h3 style="color: var(--accent-blue);">Top 2 Predictors</h3>
             <div class="card-desc">
                 <strong>1. Transaction amount (amt)</strong> &mdash; large, unusual amounts<br>
@@ -766,7 +766,7 @@
             <h3>Before SMOTE</h3>
             <div class="donut-container">
                 <svg width="120" height="120" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14"/>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="14"/>
                     <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-red)" stroke-width="14"
                         stroke-dasharray="1.82 312" stroke-dashoffset="0"/>
                     <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-blue)" stroke-width="14"
@@ -785,7 +785,7 @@
             <h3 style="color: var(--accent-green);">After SMOTE</h3>
             <div class="donut-container">
                 <svg width="120" height="120" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14"/>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="14"/>
                     <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-green)" stroke-width="14"
                         stroke-dasharray="28.6 285.4" stroke-dashoffset="0"/>
                     <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent-blue)" stroke-width="14"
@@ -1035,7 +1035,7 @@
     </div>
 
     <div class="card-grid grid-3 reveal" style="margin-top: 2rem;">
-        <div class="card" style="border-color: rgba(59,130,246,0.3);">
+        <div class="card" style="border-color: rgba(37,99,235,0.3);">
             <div class="big-number" style="color: var(--accent-blue);">0.9897</div>
             <div class="card-label">Spark AUC-ROC</div>
             <div class="card-desc">vs sklearn RF: 0.9925 (0.28% diff)</div>
@@ -1218,7 +1218,7 @@
     </div>
 
     <div class="card-grid grid-3 reveal" style="margin-top: 2rem;">
-        <div class="card" style="border-color: rgba(59,130,246,0.3);">
+        <div class="card" style="border-color: rgba(37,99,235,0.3);">
             <div style="font-size: 2rem; margin-bottom: 0.75rem;">1</div>
             <h3>SMOTE makes the invisible visible</h3>
             <div class="card-desc">

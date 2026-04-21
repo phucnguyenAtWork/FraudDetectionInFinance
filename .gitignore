@@ -16,4 +16,4 @@ __pycache__/
 *.pdf
 
 # Large dataset files
-Real_Data_Fraud(Dataset)/
+Real_Data_Fraud/
